@@ -1,0 +1,21 @@
+{% load admin_list i18n dsadmin %}
+<nav class="paginator flex flex-wrap items-center gap-3" aria-labelledby="pagination">
+  <h2 id="pagination" class="sr-only">{% blocktranslate with name=cl.opts.verbose_name_plural %}Pagination {{ name }}{% endblocktranslate %}</h2>
+  {% if pagination_required %}
+  <ul class="d-join">
+    {% for i in page_range %}
+      <li class="contents">
+      {% if i == cl.paginator.ELLIPSIS %}
+        <span class="d-join-item d-btn d-btn-sm d-btn-disabled" aria-hidden="true">…</span>
+      {% elif i == cl.page_num %}
+        <span class="this-page d-join-item d-btn d-btn-sm d-btn-active" aria-current="page">{{ i }}</span>
+      {% else %}
+        <a href="{% ds_page_url cl i %}" class="d-join-item d-btn d-btn-sm{% if i == cl.paginator.num_pages %} end{% endif %}" aria-label="{% blocktranslate %}Page {{ i }}{% endblocktranslate %}">{{ i }}</a>
+      {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <span class="text-sm ds-muted">{{ cl.result_count }} {% if cl.result_count == 1 %}{{ cl.opts.verbose_name }}{% else %}{{ cl.opts.verbose_name_plural }}{% endif %}</span>
+  {% if show_all_url %}<a href="{{ show_all_url }}" class="showall d-link text-sm">{% translate 'Show all' %}</a>{% endif %}
+</nav>

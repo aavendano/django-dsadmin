@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls dsadmin %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+  <li><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+  <li><a href="{% url opts|admin_urlname:'changelist' %}">{{ module_name }}</a></li>
+  <li><a href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|ds_obj_display|truncatewords:"18" }}</a></li>
+  <li aria-current="page">{% translate 'History' %}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+<div id="change-history" class="module d-card theme-bordered bg-base-100">
+{% if action_list %}
+  <div class="overflow-x-auto">
+    <table class="d-table">
+      <thead><tr>
+        <th scope="col">{% translate 'Date/time' %}</th>
+        <th scope="col">{% translate 'User' %}</th>
+        <th scope="col">{% translate 'Action' %}</th>
+      </tr></thead>
+      <tbody>
+      {% for action in action_list %}
+      <tr>
+        <th scope="row" class="whitespace-nowrap font-normal">{{ action.action_time|date:"DATETIME_FORMAT" }}</th>
+        <td>{{ action.user.get_username }}{% if action.user.get_full_name %} ({{ action.user.get_full_name }}){% endif %}</td>
+        <td>{{ action.get_change_message }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <nav class="paginator flex flex-wrap items-center gap-3 border-t border-base-300 p-3" aria-labelledby="pagination">
+    <h2 id="pagination" class="sr-only">{% blocktranslate with name=opts.verbose_name %}Pagination {{ name }} entries{% endblocktranslate %}</h2>
+    {% if pagination_required %}
+      <ul class="d-join">
+      {% for i in page_range %}
+        <li class="contents">
+        {% if i == action_list.paginator.ELLIPSIS %}<span class="d-join-item d-btn d-btn-sm d-btn-disabled">…</span>
+        {% elif i == action_list.number %}<span class="d-join-item d-btn d-btn-sm d-btn-active" aria-current="page">{{ i }}</span>
+        {% else %}<a class="d-join-item d-btn d-btn-sm" href="?{{ page_var }}={{ i }}">{{ i }}</a>{% endif %}
+        </li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+    <span class="text-sm ds-muted">{{ action_list.paginator.count }} {% blocktranslate count counter=action_list.paginator.count %}entry{% plural %}entries{% endblocktranslate %}</span>
+  </nav>
+{% else %}
+  <div class="p-4">{% include "dsadmin/components/empty_state.html" with icon="history" title=_("No history") text=_("This object doesn’t have a change history. It probably wasn’t added via this admin site.") compact=True %}</div>
+{% endif %}
+</div>
+</div>
+{% endblock %}

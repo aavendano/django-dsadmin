@@ -1,0 +1,19 @@
+{% load dsadmin %}
+<section class="ds-widget d-card theme-bordered bg-base-100 {{ width_class }}" aria-label="{{ title }}">
+  <div class="d-card-body gap-3 p-4">
+    <h2 class="d-card-title text-base">{{ title }}</h2>
+    {% if description %}<p class="text-sm ds-muted">{{ description }}</p>{% endif %}
+    {% if rows %}
+    <div class="overflow-x-auto">
+      <table class="d-table d-table-sm">
+        <thead><tr>{% for col in columns %}<th scope="col">{{ col }}</th>{% endfor %}</tr></thead>
+        <tbody>
+          {% for row in rows %}<tr>{% for cell in row %}<td>{% if cell.url %}<a class="d-link d-link-hover" href="{{ cell.url }}">{{ cell.text }}</a>{% else %}{{ cell.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      {% include "dsadmin/components/empty_state.html" with icon="inbox" title=empty_text compact=True %}
+    {% endif %}
+  </div>
+</section>

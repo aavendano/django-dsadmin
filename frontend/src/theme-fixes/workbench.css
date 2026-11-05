@@ -1,0 +1,16 @@
+/*
+ * Workbench theme — admin compatibility patch (pending upstream in
+ * plt-design-system).
+ *
+ * The theme draws badges as stamps (transparent background, currentColor
+ * border) but keeps daisyUI's *-content colour for the text, which is meant
+ * for filled badges: text ends up near-invisible (1.1:1). Stamps should carry
+ * the semantic ink instead. Remove once the theme sets this itself.
+ */
+.d-badge.d-badge-success { color: color-mix(in oklab, var(--color-success) 80%, black); }
+.d-badge.d-badge-warning { color: color-mix(in oklab, var(--color-warning) 62%, black); }
+.d-badge.d-badge-error { color: color-mix(in oklab, var(--color-error) 85%, black); }
+.d-badge.d-badge-info { color: color-mix(in oklab, var(--color-info) 80%, black); }
+.d-badge.d-badge-primary { color: var(--color-primary); }
+.d-badge.d-badge-secondary { color: color-mix(in oklab, var(--color-secondary) 85%, black); }
+.d-badge.d-badge-accent { color: var(--color-accent); }

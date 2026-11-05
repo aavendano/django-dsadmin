@@ -1,0 +1,10 @@
+{% load i18n dsadmin %}
+<section class="ds-widget d-card theme-bordered bg-base-100 {{ width_class }}" aria-label="{{ title|default:_('Widget') }}">
+  <div class="d-card-body gap-2 p-4">
+    {% if title %}<h2 class="d-card-title text-base">{{ title }}</h2>{% endif %}
+    <div role="alert" class="d-alert d-alert-error d-alert-soft text-sm">
+      {% ds_icon "error" "size-5 shrink-0" %}
+      <span>{% translate 'This widget could not be loaded.' %}{% if detail %} <code class="block text-xs ds-muted">{{ detail }}</code>{% endif %}</span>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,9 @@
+{% load dsadmin %}
+<section class="ds-widget d-card theme-bordered bg-base-100 {{ width_class }}" aria-label="{{ title }}">
+  <div class="d-card-body gap-3 p-4">
+    <h2 class="d-card-title text-base">{{ title }}</h2>
+    <div class="flex flex-wrap gap-2">
+      {% for item in items %}<a href="{{ item.url }}" class="d-btn d-btn-sm d-btn-primary theme-bordered">{% ds_icon item.icon "size-4" %}{{ item.label }}</a>{% endfor %}
+    </div>
+  </div>
+</section>

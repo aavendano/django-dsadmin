@@ -1,0 +1,48 @@
+{% load dsadmin %}
+<fieldset class="module aligned ds-fieldset {% if nested %}ds-fieldset-nested{% else %}d-card theme-bordered bg-base-100{% endif %} {{ fieldset.classes }}"{% if fieldset.name %} aria-labelledby="{{ prefix }}-{{ id_prefix}}-{{ id_suffix }}-heading"{% endif %}>
+  {% if fieldset.name and fieldset.is_collapsible %}<details class="ds-collapsible group"><summary class="flex cursor-pointer list-none items-center justify-between gap-2 border-b border-base-300 px-4 py-3">{% endif %}
+  {% if fieldset.name %}
+    <h{{ heading_level|default:2 }} id="{{ prefix }}-{{ id_prefix}}-{{ id_suffix }}-heading" class="fieldset-heading {% if not fieldset.is_collapsible %}border-b border-base-300 px-4 py-3{% endif %} text-base font-semibold">{{ fieldset.name }}</h{{ heading_level|default:2 }}>
+  {% endif %}
+  {% if fieldset.name and fieldset.is_collapsible %}{% ds_icon "chevron-down" "size-4 transition-transform group-open:rotate-180" %}</summary>{% endif %}
+  <div class="d-card-body gap-0 p-0">
+  {% if fieldset.description %}
+    <div class="description px-4 pt-3 text-sm ds-muted">{{ fieldset.description|safe }}</div>
+  {% endif %}
+  {% for line in fieldset %}
+    <div class="form-row ds-form-row{% if not line.fields|length == 1 %} ds-form-multiline grid gap-4 md:grid-cols-2{% endif %}{% if not line.has_visible_field %} hidden{% endif %}{% for field in line %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% endfor %}">
+      {% for field in line %}
+        {% if field.is_fieldset %}<fieldset class="ds-subfieldset min-w-0"{% if field.field.help_text %} aria-describedby="{{ field.field.id_for_label }}_helptext"{% endif %}>{% endif %}
+        <div class="ds-field min-w-0{% if not field.is_readonly and field.errors or line.fields|length == 1 and line.errors %} errors{% endif %}{% if not line.fields|length == 1 %} fieldBox{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% if field.field.is_hidden %} hidden{% endif %}{% endif %}{% if field.is_checkbox %} checkbox-row{% endif %}">
+          {% if field.is_checkbox %}
+            <div class="checkbox flex items-center gap-3">
+              {% ds_field field %}
+              {% if not field.is_fieldset %}{{ field.label_tag }}{% endif %}
+            </div>
+          {% else %}
+            <div class="ds-label">{{ field.label_tag }}</div>
+          {% endif %}
+          <div class="ds-control">
+            {% if line.fields|length == 1 %}{{ line.errors }}{% endif %}
+            {% if not line.fields|length == 1 and not field.is_readonly %}{{ field.errors }}{% endif %}
+            {% if not field.is_checkbox %}
+              {% if field.is_readonly %}
+                <div class="readonly ds-readonly">{{ field.contents }}</div>
+              {% else %}
+                {% ds_field field %}
+              {% endif %}
+            {% endif %}
+            {% if field.field.help_text %}
+              <div class="help ds-help{% if field.field.is_hidden %} hidden{% endif %}"{% if field.field.id_for_label %} id="{{ field.field.id_for_label }}_helptext"{% endif %}>
+                <div>{{ field.field.help_text|safe }}</div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        {% if field.is_fieldset %}</fieldset>{% endif %}
+      {% endfor %}
+    </div>
+  {% endfor %}
+  </div>
+  {% if fieldset.name and fieldset.is_collapsible %}</details>{% endif %}
+</fieldset>

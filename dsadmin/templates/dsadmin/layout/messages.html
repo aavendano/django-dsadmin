@@ -1,0 +1,13 @@
+{% load dsadmin %}
+{% if messages %}
+<div class="messagelist ds-messages mb-4 flex flex-col gap-2" data-ds-messages>
+  {% for message in messages %}
+    <div role="{% if 'error' in message.tags or 'warning' in message.tags %}alert{% else %}status{% endif %}"
+         class="{{ message.tags|ds_message_class }} {{ message.tags }} theme-bordered py-3" data-ds-message>
+      {% ds_icon message.tags|ds_message_icon "size-5 shrink-0" %}
+      <span>{{ message|capfirst }}</span>
+      <button type="button" class="d-btn d-btn-ghost d-btn-xs d-btn-square ms-auto" data-ds-dismiss aria-label="Dismiss">{% ds_icon "x" "size-4" %}</button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}

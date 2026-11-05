@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls dsadmin %}
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+  <li><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+  <li>{% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}</li>
+  <li><a href="{{ change_url }}">{{ object|ds_obj_display|truncatewords:"18" }}</a></li>
+  <li aria-current="page">{{ title }}</li>
+</ol>
+{% endblock %}
+{% block content %}
+<div class="d-card theme-bordered bg-base-100 max-w-xl">
+  <form method="post" class="d-card-body gap-4">{% csrf_token %}
+    <input type="hidden" name="next" value="{{ next_url }}">
+    <div role="alert" class="d-alert d-alert-warning">{% ds_icon "alert" "size-5 shrink-0" %}<span>{{ confirm_text }}</span></div>
+    <p><strong>{{ object }}</strong></p>
+    <div class="flex flex-wrap gap-2">
+      <button type="submit" class="{{ tone_class }}">{{ title }}</button>
+      <a href="{{ next_url }}" class="d-btn d-btn-ghost">{% translate 'Cancel' %}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

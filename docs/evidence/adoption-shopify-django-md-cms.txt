@@ -1,0 +1,29 @@
+ 200  ds  index                                    /admin/ 
+ 200  ds  search                                   /admin/search/?q=a 
+ 200  ds  auth.Group changelist                    /admin/auth/group/ 
+ 200  ds  auth.Group add                           /admin/auth/group/add/ 
+ 200  ds  accounts.User changelist                 /admin/accounts/user/ 
+ 200  ds  accounts.User add                        /admin/accounts/user/add/ 
+ 200  ds  accounts.User change                     /admin/accounts/user/1/change/ 
+ 200  ds  accounts.ShopMembership changelist       /admin/accounts/shopmembership/ 
+ 200  ds  accounts.ShopMembership add              /admin/accounts/shopmembership/add/ 
+ 200  ds  core.ShopConfig changelist               /admin/core/shopconfig/ 
+ 200  ds  core.ShopConfig add                      /admin/core/shopconfig/add/ 
+ 200  ds  content.ContentIndex changelist          /admin/content/contentindex/ 
+ 200  ds  content.ContentIndex add                 /admin/content/contentindex/add/ 
+ 200  ds  content.ContentProposal changelist       /admin/content/contentproposal/ 
+ 403      content.ContentProposal add              /admin/content/contentproposal/add/ denied by ModelAdmin (permission preserved)
+ 200  ds  content.ShopGitBinding changelist        /admin/content/shopgitbinding/ 
+ 200  ds  content.ShopGitBinding add               /admin/content/shopgitbinding/add/ 
+ 200  ds  content.SyncJob changelist               /admin/content/syncjob/ 
+ 200  ds  content.SyncJob add                      /admin/content/syncjob/add/ 
+ 200  ds  content.SyncConflict changelist          /admin/content/syncconflict/ 
+ 200  ds  content.SyncConflict add                 /admin/content/syncconflict/add/ 
+ 200  ds  content.SyncIdentity changelist          /admin/content/syncidentity/ 
+ 200  ds  content.SyncIdentity add                 /admin/content/syncidentity/add/ 
+ 200  ds  content.SyncEvent changelist             /admin/content/syncevent/ 
+ 200  ds  content.SyncEvent add                    /admin/content/syncevent/add/ 
+ 200  ds  content.SyncCheckpoint changelist        /admin/content/synccheckpoint/ 
+ 200  ds  content.SyncCheckpoint add               /admin/content/synccheckpoint/add/ 
+
+12 ModelAdmins, 27 URLs, 0 problems

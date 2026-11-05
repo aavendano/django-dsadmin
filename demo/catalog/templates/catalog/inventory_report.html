@@ -1,0 +1,40 @@
+{% extends "dsadmin/page.html" %}
+{% load dsadmin %}
+{% block page_content %}
+<div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+  <section class="d-card theme-bordered bg-base-100 xl:col-span-2" aria-labelledby="by-category">
+    <div class="d-card-body gap-3 p-4">
+      <h2 id="by-category" class="d-card-title text-base">By category</h2>
+      <div class="overflow-x-auto">
+        <table class="d-table d-table-zebra">
+          <thead><tr><th scope="col">Category</th><th scope="col" class="text-right">Products</th><th scope="col" class="text-right">Units</th><th scope="col" class="text-right">Value</th></tr></thead>
+          <tbody>
+            {% for row in rows %}
+              <tr><td>{{ row.name }}</td><td class="text-right tabular-nums">{{ row.products_count }}</td><td class="text-right tabular-nums">{{ row.units|default:0 }}</td><td class="text-right tabular-nums">${{ row.value|default:0|floatformat:0 }}</td></tr>
+            {% empty %}
+              <tr><td colspan="4">{% include "dsadmin/components/empty_state.html" with icon="inbox" title="No categories" compact=True %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <section class="d-card theme-bordered bg-base-100" aria-labelledby="low-stock">
+    <div class="d-card-body gap-3 p-4">
+      <h2 id="low-stock" class="d-card-title text-base">{% ds_icon "alert" "size-5 text-warning" %}Low stock</h2>
+      {% if low_stock %}
+        <ul class="divide-y divide-base-300">
+          {% for p in low_stock %}
+          <li class="flex items-center justify-between gap-2 py-2">
+            <a class="d-link d-link-hover truncate" href="{% url 'backoffice:catalog_product_change' p.pk %}">{{ p.name }}</a>
+            {% if p.stock < 3 %}{% ds_badge p.stock "error" %}{% else %}{% ds_badge p.stock "warning" %}{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        {% include "dsadmin/components/empty_state.html" with icon="success" title="All stocked" compact=True %}
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

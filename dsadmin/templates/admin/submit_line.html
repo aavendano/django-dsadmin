@@ -1,0 +1,17 @@
+{% load i18n admin_urls dsadmin %}
+<div class="submit-row ds-submit-row sticky bottom-0 z-10 flex flex-wrap items-center gap-2 rounded-box border border-base-300 bg-base-100/95 p-3 shadow-sm backdrop-blur">
+{% block submit-row %}
+{% if show_save %}<input type="submit" value="{% translate 'Save' %}" class="default d-btn d-btn-primary theme-bordered" name="_save">{% endif %}
+{% if show_save_as_new %}<input type="submit" value="{% translate 'Save as new' %}" name="_saveasnew" class="d-btn">{% endif %}
+{% if show_save_and_add_another %}<input type="submit" value="{% translate 'Save and add another' %}" name="_addanother" class="d-btn">{% endif %}
+{% if show_save_and_continue %}<input type="submit" value="{% if can_change %}{% translate 'Save and continue editing' %}{% else %}{% translate 'Save and view' %}{% endif %}" name="_continue" class="d-btn">{% endif %}
+{% if show_close %}
+    {% url opts|admin_urlname:'changelist' as changelist_url %}
+    <a role="button" href="{% add_preserved_filters changelist_url %}" class="closelink d-btn d-btn-ghost">{% translate 'Close' %}</a>
+{% endif %}
+{% if show_delete_link and original %}
+    {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+    <a role="button" href="{% add_preserved_filters delete_url %}" class="deletelink d-btn d-btn-error d-btn-outline ms-auto">{% ds_icon "trash" "size-4" %}{% translate "Delete" %}</a>
+{% endif %}
+{% endblock %}
+</div>

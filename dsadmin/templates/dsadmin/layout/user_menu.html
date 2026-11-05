@@ -1,0 +1,28 @@
+{% load i18n dsadmin %}{% dsadmin_ui as ui %}
+<details class="d-dropdown d-dropdown-end" id="user-tools">
+  <summary class="d-btn d-btn-ghost d-btn-sm gap-2 px-2">
+    <span class="d-avatar d-avatar-placeholder" aria-hidden="true">
+      <span class="w-7 rounded-full bg-neutral text-neutral-content text-xs">{% firstof user.get_short_name user.get_username as uname %}{{ uname|slice:":1"|upper }}</span>
+    </span>
+    <span class="sr-only md:not-sr-only md:max-w-32 md:truncate">{% firstof user.get_short_name user.get_username %}</span><span class="sr-only">— {% translate "account menu" %}</span>
+    {% ds_icon "chevron-down" "size-4 opacity-60" %}
+  </summary>
+  <ul class="d-menu d-dropdown-content z-40 mt-2 w-56 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg">
+    <li class="d-menu-title">{% firstof user.get_full_name user.get_username %}</li>
+    {% if site_url %}<li><a href="{{ site_url }}">{% ds_icon "external" "size-4" %}{% translate 'View site' %}</a></li>{% endif %}
+    {% if user.is_active and user.is_staff %}
+      {% url 'django-admindocs-docroot' as docsroot %}
+      {% if docsroot %}<li><a href="{{ docsroot }}">{% ds_icon "file" "size-4" %}{% translate 'Documentation' %}</a></li>{% endif %}
+    {% endif %}
+    {% for link in ui.user_links %}<li><a href="{{ link.url }}">{% ds_icon link.icon "size-4" %}{{ link.label }}</a></li>{% endfor %}
+    {% if user.has_usable_password %}
+      <li><a href="{% url 'admin:password_change' %}">{% ds_icon "key" "size-4" %}{% translate 'Change password' %}</a></li>
+    {% endif %}
+    <li>
+      <form id="logout-form" method="post" action="{% url 'admin:logout' %}" class="contents">
+        {% csrf_token %}
+        <button type="submit" class="w-full text-left">{% ds_icon "logout" "size-4" %}{% translate 'Log out' %}</button>
+      </form>
+    </li>
+  </ul>
+</details>

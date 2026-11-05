@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% load i18n dsadmin %}
+
+{% block bodyclass %}{{ block.super }} app-{{ app_label }} dashboard{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+  <li aria-current="page">{% for app in app_list %}{{ app.name }}{% endfor %}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% include "dsadmin/widgets/_app_cards.html" with app_list=app_list %}
+</div>
+{% endblock %}

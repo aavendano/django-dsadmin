@@ -1,0 +1,6 @@
+{% load dsadmin %}
+{# include with: tone (info|success|warning|error), title, text #}
+<div role="{% if tone == 'error' or tone == 'warning' %}alert{% else %}status{% endif %}" class="d-alert {% if tone == 'success' %}d-alert-success{% elif tone == 'warning' %}d-alert-warning{% elif tone == 'error' %}d-alert-error{% else %}d-alert-info{% endif %} theme-bordered">
+  {% ds_icon tone|default:"info" "size-5 shrink-0" %}
+  <div>{% if title %}<p class="font-semibold">{{ title }}</p>{% endif %}{% if text %}<p class="text-sm">{{ text }}</p>{% endif %}</div>
+</div>

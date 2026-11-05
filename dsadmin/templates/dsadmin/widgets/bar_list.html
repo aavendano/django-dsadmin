@@ -1,0 +1,19 @@
+{% load dsadmin %}
+<section class="ds-widget d-card theme-bordered bg-base-100 {{ width_class }}" aria-label="{{ title }}">
+  <div class="d-card-body gap-3 p-4">
+    <h2 class="d-card-title text-base">{{ title }}</h2>
+    {% if description %}<p class="text-sm ds-muted">{{ description }}</p>{% endif %}
+    {% if rows %}
+    <ul class="flex flex-col gap-2">
+      {% for row in rows %}
+      <li>
+        <div class="flex justify-between gap-2 text-sm"><span class="truncate">{{ row.label }}</span><span class="tabular-nums font-semibold">{{ row.display }}</span></div>
+        <progress class="d-progress {{ progress_class }} h-2 w-full" value="{{ row.pct }}" max="100" aria-label="{{ row.label }}: {{ row.display }}"></progress>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      {% include "dsadmin/components/empty_state.html" with icon="chart" title=empty_text compact=True %}
+    {% endif %}
+  </div>
+</section>

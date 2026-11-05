@@ -1,0 +1,16 @@
+{
+  "name": "django-dsadmin-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Builds dsadmin CSS from @playlovetoys/design-system (daisyUI 5, prefix d-).",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:theme": "node build.mjs --theme"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": ">=4.1 <5",
+    "daisyui": ">=5.7.8 <6",
+    "tailwindcss": ">=4.1 <5"
+  }
+}

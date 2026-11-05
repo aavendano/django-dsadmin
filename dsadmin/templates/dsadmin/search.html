@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{% load i18n dsadmin %}
+{% block bodyclass %}{{ block.super }} ds-search{% endblock %}
+{% block content %}
+<div id="content-main" class="flex flex-col gap-4">
+  <form method="get" role="search" class="d-card theme-bordered bg-base-100">
+    <div class="d-card-body flex-row items-center gap-2 p-3">
+      <label class="d-input w-full" for="ds-global-search">
+        {% ds_icon "search" "size-4 opacity-60" %}
+        <span class="sr-only">{% translate 'Search' %}</span>
+        <input id="ds-global-search" type="search" name="q" value="{{ query }}" class="grow" placeholder="{% translate 'Search across the admin…' %}" autofocus>
+      </label>
+      <button class="d-btn d-btn-primary" type="submit">{% translate 'Search' %}</button>
+    </div>
+  </form>
+
+  {% if not query %}
+    {% include "dsadmin/components/empty_state.html" with icon="search" title=_("Search the admin") text=_("Results come from every model you can access that defines search fields.") %}
+  {% elif not sections %}
+    {% include "dsadmin/components/empty_state.html" with icon="inbox" title=_("No results") text=_("Try a different term.") %}
+  {% else %}
+    <p class="text-sm ds-muted" role="status">{% blocktranslate count counter=total %}{{ counter }} result for “{{ query }}”{% plural %}{{ counter }} results for “{{ query }}”{% endblocktranslate %}</p>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {% for section in sections %}
+      <section class="d-card theme-bordered bg-base-100" aria-labelledby="ds-search-{{ forloop.counter }}">
+        <div class="d-card-body gap-2 p-4">
+          <div class="flex items-baseline justify-between gap-2">
+            <h2 id="ds-search-{{ forloop.counter }}" class="d-card-title text-base">{{ section.name|capfirst }}</h2>
+            <span class="text-xs opacity-60">{{ section.app }}</span>
+          </div>
+          <ul class="d-menu w-full p-0">
+            {% for hit in section.hits %}
+              <li>{% if hit.url %}<a href="{{ hit.url }}">{{ hit.label }}</a>{% else %}<span>{{ hit.label }}</span>{% endif %}</li>
+            {% endfor %}
+          </ul>
+          {% if section.changelist_url %}<a href="{{ section.changelist_url }}" class="d-link text-sm">{% if section.more %}{% translate 'See all results' %}{% else %}{% translate 'Open list' %}{% endif %} →</a>{% endif %}
+        </div>
+      </section>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

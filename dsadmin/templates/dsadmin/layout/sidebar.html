@@ -1,0 +1,72 @@
+{% load i18n dsadmin %}{% dsadmin_ui as ui %}
+<div class="d-drawer-side z-40">
+  <label for="ds-drawer" class="d-drawer-overlay" aria-hidden="true"></label>
+  <aside id="ds-sidebar" class="ds-sidebar flex min-h-full w-72 flex-col border-r border-base-300 bg-base-100" aria-label="{% translate 'Sidebar' %}">
+    <div class="ds-sidebar-brand flex min-h-14 items-center gap-3 border-b border-base-300 px-4">
+      <a href="{{ ui.index_url }}" class="flex min-w-0 items-center gap-3">
+        {% if ui.logo %}
+          <img src="{{ ui.logo }}" alt="" class="ds-logo h-8 w-auto {% if ui.logo_dark %}ds-logo-light{% endif %}">
+          {% if ui.logo_dark %}<img src="{{ ui.logo_dark }}" alt="" class="ds-logo ds-logo-dark h-8 w-auto">{% endif %}
+        {% else %}
+          <span class="ds-logo-mark grid size-8 shrink-0 place-items-center rounded-box bg-primary text-primary-content font-bold" aria-hidden="true">{{ ui.header|slice:":1"|upper }}</span>
+        {% endif %}
+        <span class="ds-sidebar-label min-w-0">
+          <span class="ds-brand-text block truncate font-semibold leading-tight">{{ ui.header }}</span>
+          {% if ui.subheader %}<span class="block truncate text-xs ds-muted">{{ ui.subheader }}</span>{% endif %}
+        </span>
+      </a>
+    </div>
+
+    <nav class="ds-sidebar-nav flex-1 overflow-y-auto py-2" aria-label="{% translate 'Main navigation' %}">
+      <ul class="d-menu w-full gap-0.5 px-2">
+        <li>
+          <a href="{{ ui.index_url }}" {% if request.path == ui.index_url %}class="d-menu-active" aria-current="page"{% endif %} title="{% translate 'Dashboard' %}">
+            {% ds_icon "dashboard" "size-5 shrink-0" %}<span class="ds-sidebar-label">{% translate 'Dashboard' %}</span>
+          </a>
+        </li>
+        {% for group in ui.navigation %}
+          <li class="ds-nav-group">
+            {% if group.label %}
+              <details {% if group.active or not group.collapsible %}open{% endif %} data-ds-nav-group="{{ group.key }}">
+                <summary title="{{ group.label }}">
+                  {% if group.icon %}{% ds_icon group.icon "size-5 shrink-0" %}{% else %}{% ds_icon "folder" "size-5 shrink-0" %}{% endif %}
+                  <span class="ds-sidebar-label truncate">{{ group.label }}</span>
+                </summary>
+                <ul>
+                  {% for item in group.items %}
+                    <li>
+                      <a href="{{ item.url }}"{% if item.active %} class="d-menu-active" aria-current="page"{% endif %}{% if item.external %} target="_blank" rel="noopener"{% endif %} title="{{ item.label }}">
+                        {% if item.icon %}{% ds_icon item.icon "size-4 shrink-0" %}{% endif %}
+                        <span class="truncate">{{ item.label }}</span>
+                        {% if item.badge %}<span class="d-badge d-badge-sm d-badge-primary ms-auto">{{ item.badge }}</span>{% endif %}
+                        {% if item.external %}{% ds_icon "external" "size-3 opacity-60" %}<span class="sr-only">({% translate 'opens in a new tab' %})</span>{% endif %}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% else %}
+              {% for item in group.items %}
+                <a href="{{ item.url }}"{% if item.active %} class="d-menu-active" aria-current="page"{% endif %}>
+                  {% if item.icon %}{% ds_icon item.icon "size-5 shrink-0" %}{% endif %}<span class="ds-sidebar-label">{{ item.label }}</span>
+                </a>
+              {% endfor %}
+            {% endif %}
+          </li>
+        {% empty %}
+          {% if not has_permission %}{% else %}
+          <li class="px-3 py-2 text-sm ds-muted">{% translate 'Nothing to show yet.' %}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+
+    {% if ui.sidebar_collapsible %}
+    <div class="hidden border-t border-base-300 p-2 lg:block">
+      <button type="button" class="d-btn d-btn-ghost d-btn-sm w-full justify-start gap-3" data-ds-sidebar-toggle aria-pressed="false" aria-controls="ds-sidebar">
+        {% ds_icon "sidebar" "size-5 shrink-0" %}<span class="ds-sidebar-label">{% translate 'Collapse sidebar' %}</span>
+      </button>
+    </div>
+    {% endif %}
+  </aside>
+</div>

@@ -1,0 +1,11 @@
+{% load i18n admin_urls dsadmin %}
+{% block object-tools-items %}
+  {% if has_add_permission %}
+  <li>
+    {% url cl.opts|admin_urlname:'add' as add_url %}
+    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink d-btn d-btn-primary d-btn-sm theme-bordered">
+      {% ds_icon "plus" "size-4" %}{% blocktranslate with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktranslate %}
+    </a>
+  </li>
+  {% endif %}
+{% endblock %}

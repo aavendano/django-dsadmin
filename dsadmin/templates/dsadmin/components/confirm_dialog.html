@@ -1,0 +1,15 @@
+{% load i18n dsadmin %}
+{# Reusable confirmation dialog. include with: id, title, text, action, confirm_label, tone_class, next #}
+<dialog id="{{ id }}" class="d-modal" aria-labelledby="{{ id }}-title">
+  <div class="d-modal-box theme-bordered">
+    <h3 id="{{ id }}-title" class="text-lg font-bold">{{ title }}</h3>
+    {% if text %}<p class="py-3">{{ text }}</p>{% endif %}
+    <form method="post" action="{{ action }}" class="d-modal-action">
+      {% csrf_token %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button type="button" class="d-btn d-btn-ghost" data-ds-dialog-close>{% translate 'Cancel' %}</button>
+      <button type="submit" class="d-btn {{ tone_class|default:'d-btn-primary' }}">{{ confirm_label|default:_("Confirm") }}</button>
+    </form>
+  </div>
+  <form method="dialog" class="d-modal-backdrop"><button>{% translate 'Close' %}</button></form>
+</dialog>

@@ -1,0 +1,14 @@
+{% load i18n %}
+<details data-filter-title="{{ title }}" open class="ds-filter group border-t border-base-300 pt-2">
+  <summary class="flex cursor-pointer list-none items-center justify-between py-1 text-sm font-semibold">
+    <span>{% blocktranslate with filter_title=title %} By {{ filter_title }} {% endblocktranslate %}</span>
+    <svg class="ds-icon size-4 transition-transform group-open:rotate-180" aria-hidden="true"><use href="#ds-i-chevron-down"></use></svg>
+  </summary>
+  <ul class="d-menu d-menu-sm w-full p-0 pt-1">
+  {% for choice in choices %}
+    <li{% if choice.selected %} class="selected"{% endif %}>
+      <a href="{{ choice.query_string|iriencode }}"{% if choice.selected %} class="d-menu-active" aria-current="true"{% endif %}>{{ choice.display }}</a>
+    </li>
+  {% endfor %}
+  </ul>
+</details>

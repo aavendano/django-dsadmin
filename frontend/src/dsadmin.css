@@ -1,0 +1,597 @@
+/*
+ * dsadmin layer.
+ *
+ * Owns only what the design system cannot know about: the admin shell
+ * (sidebar collapse, skip link), the markup Django's admin emits by itself
+ * (error lists, sortable headers, JavaScript widgets) and a token bridge so
+ * Django's own widget stylesheet is skinned by the active theme.
+ * No colours, radii or fonts are defined here — everything reads daisyUI /
+ * --plt-* tokens from @playlovetoys/design-system.
+ */
+
+/* ------------------------------------------------------------------ token bridge
+ * Django admin CSS variables -> design-system tokens. Lets admin/css/widgets.css
+ * (calendar, clock, selector, related-object links) and third-party admin
+ * templates that pull Django stylesheets follow the active theme. */
+:root,
+[data-theme] {
+  --primary: var(--color-primary);
+  --secondary: var(--color-secondary);
+  --accent: var(--color-accent);
+  --primary-fg: var(--color-primary-content);
+  --body-fg: var(--color-base-content);
+  --body-bg: var(--color-base-100);
+  --body-quiet-color: color-mix(in oklab, var(--color-base-content) 78%, transparent);
+  --body-medium-color: color-mix(in oklab, var(--color-base-content) 80%, transparent);
+  --body-loud-color: var(--color-base-content);
+  --header-color: var(--color-base-content);
+  --header-branding-color: var(--color-primary);
+  --header-bg: var(--color-base-100);
+  --header-link-color: var(--color-base-content);
+  --breadcrumbs-fg: var(--color-base-content);
+  --breadcrumbs-link-fg: var(--color-base-content);
+  --breadcrumbs-bg: var(--color-base-200);
+  --link-fg: var(--color-primary);
+  --link-hover-color: var(--color-accent);
+  --link-selected-fg: var(--color-primary);
+  --hairline-color: var(--color-base-300);
+  --border-color: var(--color-base-300);
+  --error-fg: var(--color-error);
+  --message-success-bg: color-mix(in oklab, var(--color-success) 18%, var(--color-base-100));
+  --message-warning-bg: color-mix(in oklab, var(--color-warning) 18%, var(--color-base-100));
+  --message-error-bg: color-mix(in oklab, var(--color-error) 18%, var(--color-base-100));
+  --darkened-bg: var(--color-base-200);
+  --selected-bg: var(--color-base-300);
+  --selected-row: color-mix(in oklab, var(--color-primary) 12%, var(--color-base-100));
+  --button-fg: var(--color-primary-content);
+  --button-bg: var(--color-primary);
+  --button-hover-bg: color-mix(in oklab, var(--color-primary) 85%, black);
+  --default-button-bg: var(--color-primary);
+  --default-button-hover-bg: color-mix(in oklab, var(--color-primary) 85%, black);
+  --close-button-bg: var(--color-neutral);
+  --close-button-hover-bg: color-mix(in oklab, var(--color-neutral) 85%, black);
+  --delete-button-bg: var(--color-error);
+  --delete-button-hover-bg: color-mix(in oklab, var(--color-error) 85%, black);
+  --object-tools-fg: var(--color-primary-content);
+  --object-tools-bg: var(--color-primary);
+  --object-tools-hover-bg: var(--color-accent);
+  --font-family-primary: var(--plt-font-body, ui-sans-serif, system-ui, sans-serif);
+  --font-family-monospace: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+@layer components {
+  /* ---------------------------------------------------------------- shell */
+  .dsadmin {
+    font-family: var(--plt-font-body, ui-sans-serif, system-ui, sans-serif);
+  }
+
+  .ds-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: middle;
+  }
+
+  .ds-skip-link {
+    position: absolute;
+    inset-inline-start: 0.75rem;
+    top: -4rem;
+    z-index: 100;
+  }
+  .ds-skip-link:focus {
+    top: 0.75rem;
+  }
+
+  .ds-title {
+    font-family: var(--plt-font-display, inherit);
+    font-weight: var(--plt-heading-weight, 700);
+    letter-spacing: var(--plt-heading-tracking, normal);
+    text-transform: var(--plt-heading-transform, none);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .ds-main:focus {
+    outline: none;
+  }
+
+  /* Breadcrumbs: Django and third-party templates emit <ol class="breadcrumbs">. */
+  .ds-breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* Visible keyboard focus everywhere (WCAG 2.4.7 / 2.4.11). */
+  .dsadmin :where(a, button, summary, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* ---------------------------------------------------------------- sidebar */
+  .ds-sidebar .d-menu :where(li > details > summary, li > a) {
+    min-height: 2.25rem;
+  }
+
+  @media (min-width: 64rem) {
+    :root[data-sidebar="collapsed"] .ds-sidebar {
+      width: 4.25rem;
+    }
+    :root[data-sidebar="collapsed"] .ds-sidebar .ds-sidebar-label,
+    :root[data-sidebar="collapsed"] .ds-sidebar .d-menu ul,
+    :root[data-sidebar="collapsed"] .ds-sidebar summary::after {
+      display: none;
+    }
+    :root[data-sidebar="collapsed"] .ds-sidebar .d-menu :where(li > details > summary, li > a) {
+      justify-content: center;
+    }
+    :root[data-sidebar="collapsed"] .ds-sidebar-brand {
+      justify-content: center;
+      padding-inline: 0.5rem;
+    }
+  }
+
+  :root[data-color-mode="auto"] .ds-mode-icon:not(.ds-mode-icon-auto),
+  :root[data-color-mode="light"] .ds-mode-icon:not(.ds-mode-icon-light),
+  :root[data-color-mode="dark"] .ds-mode-icon:not(.ds-mode-icon-dark) {
+    display: none;
+  }
+
+  /* ---------------------------------------------------------------- page header */
+  .object-tools {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  /* Object tools from templates dsadmin does not override. */
+  .object-tools a:not(.d-btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2rem;
+    padding: 0 0.75rem;
+    border: var(--border, 1px) solid var(--color-base-300);
+    border-radius: var(--radius-field, 0.375rem);
+    background: var(--color-base-100);
+    color: var(--color-base-content);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .object-tools a:not(.d-btn):hover {
+    background: var(--color-base-200);
+  }
+
+  /* ---------------------------------------------------------------- forms */
+  .ds-form-row {
+    padding: 1rem;
+    border-top: 1px solid var(--color-base-300);
+  }
+  .ds-form-row:first-child,
+  .description + .ds-form-row {
+    border-top: 0;
+  }
+  .ds-fieldset-nested .ds-form-row {
+    padding: 0.75rem;
+  }
+  @media (min-width: 48rem) {
+    .ds-form-row:not(.ds-form-multiline) > .ds-field:not(.checkbox-row) {
+      display: grid;
+      grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+      gap: 0.25rem 1.5rem;
+      align-items: start;
+    }
+    .ds-form-row:not(.ds-form-multiline) > .ds-field > .ds-label {
+      padding-top: 0.5rem;
+    }
+  }
+  .ds-field .ds-label label,
+  .ds-field .ds-label legend,
+  .ds-subfieldset > legend,
+  .ds-change-form label.required,
+  .ds-form-row > label,
+  .ds-form-row > .ds-field > label {
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  .ds-field label.required::after,
+  .ds-field legend.required::after,
+  .ds-form-row label.required::after {
+    content: " *";
+    color: var(--color-error);
+  }
+  .ds-field.checkbox-row label {
+    font-weight: 500;
+  }
+  .ds-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 0;
+  }
+  .ds-help,
+  .help {
+    font-size: 0.8125rem;
+    color: color-mix(in oklab, var(--color-base-content) 72%, transparent);
+  }
+  .ds-readonly {
+    padding-block: 0.4rem;
+    overflow-wrap: anywhere;
+  }
+  .ds-select-multiple {
+    height: auto;
+    min-height: 8rem;
+    padding-block: 0.35rem;
+    background-image: none;
+  }
+  /* Choice widgets (RadioSelect, CheckboxSelectMultiple): Django renders
+   * <div id><div><label><input> text</label></div>... */
+  .ds-control :where(div[id^="id_"]) > div > label,
+  .ds-control ul > li > label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-block: 0.15rem;
+    font-weight: 400;
+  }
+  .ds-control ul.radiolist,
+  .ds-control ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .ds-control .radiolist.inline,
+  .ds-control ul.inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+  }
+  /* AdminFileWidget / ClearableFileInput */
+  .ds-control p.file-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+  }
+  .ds-control .clearable-file-input {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  /* URL widget ("Currently: <a>") */
+  .ds-control p.url {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+  }
+  /* Date/time shortcuts injected by DateTimeShortcuts.js */
+  .datetimeshortcuts {
+    margin-inline-start: 0.5rem;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  .datetimeshortcuts a {
+    color: var(--color-primary);
+  }
+  .ds-control p.datetime {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  .ds-related-widget > select,
+  .ds-related-widget > .d-select {
+    flex: 1 1 16rem;
+  }
+
+  /* Error lists rendered by Django forms. */
+  .errorlist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: var(--color-error);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .errorlist.nonfield,
+  .ds-change-form > div > .errorlist,
+  .row-form-errors .errorlist {
+    padding: 0.625rem 0.875rem;
+    border: var(--border, 1px) solid var(--color-error);
+    border-radius: var(--radius-box, 0.5rem);
+    background: color-mix(in oklab, var(--color-error) 10%, var(--color-base-100));
+  }
+  .ds-field.errors .ds-label label {
+    color: var(--color-error);
+  }
+
+  .ds-submit-row {
+    margin-top: 0.25rem;
+  }
+  /* The sticky submit row must never cover the focused field (WCAG 2.4.11). */
+  html:has(.ds-submit-row) {
+    scroll-padding-bottom: 6rem;
+  }
+
+  /* ---------------------------------------------------------------- change list */
+  .ds-result-list th.action-checkbox-column,
+  .ds-result-list td.action-checkbox {
+    width: 2.5rem;
+  }
+  .ds-result-list input.action-select,
+  #action-toggle {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+  }
+  .ds-result-list tr.selected > * {
+    background: color-mix(in oklab, var(--color-primary) 12%, var(--color-base-100));
+  }
+  .ds-result-list th.sorted .ds-sort-link {
+    color: var(--color-primary);
+  }
+  .ds-result-list td,
+  .ds-result-list th {
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .ds-result-list td a,
+  .ds-result-list th a:not(.d-btn) {
+    font-weight: 600;
+  }
+  .ds-result-list td a:hover,
+  .ds-result-list th a:not(.d-btn):hover {
+    text-decoration: underline;
+  }
+  /* Boolean icons Django renders as <img src="icon-yes.svg"> */
+  .ds-result-list img[src$="icon-yes.svg"],
+  .ds-result-list img[src$="icon-no.svg"],
+  .ds-result-list img[src$="icon-unknown.svg"] {
+    width: 1rem;
+    height: 1rem;
+  }
+  /* list_editable inputs */
+  .ds-result-list td :where(input:not([type="checkbox"]):not([type="hidden"]), select) {
+    min-height: 2rem;
+    padding: 0 0.5rem;
+    border: var(--border, 1px) solid var(--color-base-300);
+    border-radius: var(--radius-field, 0.375rem);
+    background: var(--color-base-100);
+  }
+  .ds-filter > summary::-webkit-details-marker {
+    display: none;
+  }
+  #changelist-filter .d-menu a {
+    white-space: normal;
+  }
+  .ds-actions select {
+    min-width: 12rem;
+  }
+
+  /* ---------------------------------------------------------------- inlines */
+  .ds-inline-table td {
+    vertical-align: top;
+  }
+  .ds-inline-table td.original p {
+    margin: 0;
+  }
+  .ds-inline-table td :where(.d-input, .d-select, .d-textarea) {
+    min-width: 8rem;
+  }
+  .inline-group tr.add-row td,
+  .inline-group div.add-row {
+    padding: 0.75rem 1rem;
+    border-top: 1px dashed var(--color-base-300);
+  }
+  .inline-group .add-row a,
+  .inline-group a.addlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-primary);
+  }
+  .inline-group .add-row a::before {
+    content: "+";
+    font-weight: 700;
+  }
+  .inline-deletelink {
+    display: inline-grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-error) 15%, transparent);
+    color: var(--color-error);
+    font-size: 0;
+  }
+  .inline-deletelink::before {
+    content: "×";
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .inline-related.empty-form,
+  tr.empty-form {
+    display: none;
+  }
+  .inline-related h3 .inline_label {
+    font-weight: 500;
+  }
+
+  /* ---------------------------------------------------------------- Django widgets (widgets.css) */
+  .selector {
+    max-width: 48rem;
+  }
+
+  .selector select {
+    border: var(--border, 1px) solid var(--color-base-300);
+    border-radius: var(--radius-field, 0.375rem);
+    background: var(--color-base-100);
+  }
+  .calendarbox,
+  .clockbox {
+    border: var(--border, 1px) solid var(--color-base-300) !important;
+    border-radius: var(--radius-box, 0.5rem);
+    background: var(--color-base-100) !important;
+    box-shadow: var(--plt-elevation, 0 8px 24px rgb(0 0 0 / 0.12));
+    color: var(--color-base-content);
+  }
+  .select2-container--admin-autocomplete .select2-selection {
+    min-height: var(--size, 2.5rem);
+    border-color: var(--color-base-300) !important;
+    border-radius: var(--radius-field, 0.375rem) !important;
+    background: var(--color-base-100) !important;
+  }
+
+  /* ---------------------------------------------------------------- legacy admin markup
+   * Minimal styling for markup emitted by templates dsadmin does not override
+   * (third-party apps that extend admin/base_site.html). */
+  .errornote:not(.d-alert) {
+    padding: 0.75rem 1rem;
+    border: var(--border, 1px) solid var(--color-error);
+    border-radius: var(--radius-box, 0.5rem);
+    background: color-mix(in oklab, var(--color-error) 10%, var(--color-base-100));
+    color: var(--color-error);
+    font-weight: 600;
+  }
+  .module:not(.d-card):not(#changelist) {
+    border: var(--border, 1px) solid var(--color-base-300);
+    border-radius: var(--radius-box, 0.5rem);
+    background: var(--color-base-100);
+    margin-bottom: 1rem;
+  }
+  .module:not(.d-card) > h2,
+  .module:not(.d-card) > caption {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-base-300);
+    font-weight: 600;
+  }
+  .ds-content input[type="submit"]:not(.d-btn),
+  .ds-content .button:not(.d-btn) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0 1rem;
+    border-radius: var(--radius-field, 0.375rem);
+    background: var(--color-primary);
+    color: var(--color-primary-content);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ds-content .quiet,
+  .ds-content .mini {
+    opacity: 0.7;
+    font-size: 0.8125rem;
+  }
+  .ds-tree ul {
+    list-style: circle;
+    padding-inline-start: 1.25rem;
+  }
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------------------------------------------------------------- islands */
+  .ds-island {
+    min-height: 2.5rem;
+  }
+
+  /* ---------------------------------------------------------------- logo variants */
+  .ds-logo-dark {
+    display: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-color-mode="auto"] .ds-logo-light { display: none; }
+    :root[data-color-mode="auto"] .ds-logo-dark { display: block; }
+  }
+  :root[data-color-mode="dark"] .ds-logo-light { display: none; }
+  :root[data-color-mode="dark"] .ds-logo-dark { display: block; }
+
+  /* ---------------------------------------------------------------- popups */
+  body.popup .ds-submit-row {
+    position: static;
+  }
+}
+
+/* Unlayered on purpose: some PLT themes style bare `a` elements outside any
+ * cascade layer, which would otherwise override daisyUI's menu colours. */
+.ds-sidebar .d-menu li > a,
+.ds-sidebar .d-menu li > details > summary,
+#changelist-filter .d-menu li > a,
+.ds-search .d-menu li > a {
+  color: var(--color-base-content);
+}
+/* daisyUI renders secondary text at 60% of base-content, which falls under
+ * 4.5:1 on several PLT surfaces. Admin metadata is information, not decoration.
+ * (daisyUI 5 ships inside the utilities layer, so overrides must be unlayered.) */
+.dsadmin .d-stat-title,
+.dsadmin .d-stat-desc,
+.dsadmin .d-table thead th,
+.dsadmin .d-table thead th a {
+  color: color-mix(in oklab, var(--color-base-content) 82%, transparent);
+}
+
+/* Django's widgets.css is unlayered too; keep FilteredSelectMultiple titles on
+ * a token pair that always meets contrast. */
+.selector .selector-available-title,
+.selector .selector-available-title label {
+  background: var(--color-base-200);
+  color: var(--color-base-content);
+}
+.selector .selector-chosen-title,
+.selector .selector-chosen-title label,
+.selector .selector-chosen-title .helptext {
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
+/* Muted text that still meets 4.5:1 (replaces opacity-based dimming). */
+.ds-muted {
+  color: color-mix(in oklab, var(--color-base-content) 78%, transparent);
+}
+
+/* Same reason for link-buttons: keep daisyUI's button foreground. */
+.dsadmin a.d-btn {
+  color: var(--btn-fg);
+}
+.dsadmin a.d-btn:hover {
+  color: var(--btn-fg);
+}
+.ds-sidebar .d-menu li > a.d-menu-active,
+.ds-sidebar .d-menu li > a[aria-current="page"],
+#changelist-filter .d-menu li > a.d-menu-active {
+  background-color: var(--color-neutral);
+  color: var(--color-neutral-content);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dsadmin *,
+  .dsadmin *::before,
+  .dsadmin *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  .ds-sidebar,
+  .ds-navbar,
+  .ds-submit-row,
+  .d-drawer-side {
+    display: none !important;
+  }
+}

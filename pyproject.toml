@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-dsadmin"
+version = "0.1.0"
+description = "Django admin presentation framework built on the PLT design system (daisyUI 5, prefix d-). Keeps AdminSite/ModelAdmin intact."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Alejandro Avendano" }]
+dependencies = ["Django>=5.2"]
+classifiers = [
+  "Framework :: Django",
+  "Framework :: Django :: 5.2",
+  "Framework :: Django :: 6.0",
+  "Framework :: Django :: 6.1",
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Developers",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "pytest-django>=4.9"]
+e2e = ["playwright>=1.45"]
+
+[project.urls]
+Source = "https://github.com/aavendano/django-dsadmin"
+
+[tool.setuptools.packages.find]
+include = ["dsadmin*"]
+
+[tool.setuptools.package-data]
+dsadmin = ["templates/**/*", "static/**/*"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+pythonpath = [".", "demo"]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning:django.*"]

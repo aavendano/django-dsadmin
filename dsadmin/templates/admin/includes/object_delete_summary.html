@@ -1,0 +1,7 @@
+{% load i18n %}
+<h2 class="text-lg font-semibold">{% translate "Summary" %}</h2>
+<ul class="flex flex-wrap gap-2">
+{% for model_name, object_count in model_count %}
+<li class="d-badge d-badge-outline">{{ model_name|capfirst }}: {{ object_count }}</li>
+{% endfor %}
+</ul>

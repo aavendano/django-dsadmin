@@ -1,0 +1,39 @@
+{% load i18n dsadmin %}
+{% if app_list %}
+<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+  {% for app in app_list %}
+  <section class="app-{{ app.app_label }} d-card theme-bordered bg-base-100" aria-labelledby="app-{{ app.app_label }}-title">
+    <div class="d-card-body gap-2 p-4">
+      <h2 id="app-{{ app.app_label }}-title" class="d-card-title text-base">
+        <a href="{{ app.app_url }}" class="d-link d-link-hover">{{ app.name }}</a>
+      </h2>
+      <ul class="divide-y divide-base-300">
+        {% for model in app.models %}
+        <li class="model-{{ model.object_name|lower }} flex items-center justify-between gap-2 py-2">
+          {% if model.admin_url %}
+            <a href="{{ model.admin_url }}" class="d-link d-link-hover min-w-0 truncate font-medium" id="{{ app.app_label }}-{{ model.object_name|lower }}">{{ model.name }}</a>
+          {% else %}
+            <span class="min-w-0 truncate">{{ model.name }}</span>
+          {% endif %}
+          <span class="flex shrink-0 gap-1">
+            {% if model.add_url %}
+              <a href="{{ model.add_url }}" class="d-btn d-btn-ghost d-btn-xs addlink" aria-describedby="{{ app.app_label }}-{{ model.object_name|lower }}">{% ds_icon "plus" "size-3.5" %}{% translate 'Add' %}</a>
+            {% endif %}
+            {% if model.admin_url %}
+              {% if model.view_only %}
+                <a href="{{ model.admin_url }}" class="d-btn d-btn-ghost d-btn-xs viewlink" aria-describedby="{{ app.app_label }}-{{ model.object_name|lower }}">{% ds_icon "eye" "size-3.5" %}{% translate 'View' %}</a>
+              {% else %}
+                <a href="{{ model.admin_url }}" class="d-btn d-btn-ghost d-btn-xs changelink" aria-describedby="{{ app.app_label }}-{{ model.object_name|lower }}">{% ds_icon "edit" "size-3.5" %}{% translate 'Change' %}</a>
+              {% endif %}
+            {% endif %}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% endfor %}
+</div>
+{% else %}
+  {% include "dsadmin/components/empty_state.html" with icon="shield" title=_("No access yet") text=_("You don’t have permission to view or edit anything.") %}
+{% endif %}

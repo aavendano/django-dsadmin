@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% load i18n dsadmin %}
+{# Base template for custom admin pages (PageView / site.render_page). Override {% block page_content %}. #}
+{% block bodyclass %}{{ block.super }} ds-custom-page{% if ds_page %} ds-page-{{ ds_page.slug }}{% endif %}{% endblock %}
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+  {% if ds_page.group %}<li>{{ ds_page.group }}</li>{% endif %}
+  <li aria-current="page">{{ title }}</li>
+</ol>
+{% endblock %}
+{% block content %}
+<div id="content-main" class="ds-page-content">
+  {% block page_content %}{% endblock %}
+</div>
+{% endblock %}

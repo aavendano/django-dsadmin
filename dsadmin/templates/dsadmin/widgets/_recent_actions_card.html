@@ -1,0 +1,31 @@
+{% load i18n log dsadmin %}
+<section class="d-card theme-bordered bg-base-100 h-full" id="recent-actions-module" aria-labelledby="recent-actions-title">
+  <div class="d-card-body gap-3 p-4">
+    <h2 id="recent-actions-title" class="d-card-title text-base">{% if title %}{{ title }}{% else %}{% translate 'Recent actions' %}{% endif %}</h2>
+    {% if entries is None %}{% get_admin_log 8 as entries for_user user %}{% endif %}
+    {% if not entries %}
+      {% include "dsadmin/components/empty_state.html" with icon="history" title=_("None available") compact=True %}
+    {% else %}
+      <ul class="actionlist flex flex-col gap-3">
+        {% for entry in entries %}
+          <li class="flex items-start gap-2">
+            {% if entry.is_addition %}<span class="d-badge d-badge-success d-badge-xs mt-1" title="{% translate 'Added' %}"><span class="sr-only">{% translate 'Added:' %}</span></span>
+            {% elif entry.is_change %}<span class="d-badge d-badge-info d-badge-xs mt-1" title="{% translate 'Changed' %}"><span class="sr-only">{% translate 'Changed:' %}</span></span>
+            {% elif entry.is_deletion %}<span class="d-badge d-badge-error d-badge-xs mt-1" title="{% translate 'Deleted' %}"><span class="sr-only">{% translate 'Deleted:' %}</span></span>{% endif %}
+            <div class="min-w-0">
+              {% if entry.is_deletion or not entry.get_admin_url %}
+                <span class="block truncate">{{ entry.object_repr|ds_obj_display }}</span>
+              {% else %}
+                <a href="{{ entry.get_admin_url }}" class="d-link d-link-hover block truncate">{{ entry.object_repr|ds_obj_display }}</a>
+              {% endif %}
+              <span class="block text-xs ds-muted">
+                {% if entry.content_type %}{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}{% else %}{% translate 'Unknown content' %}{% endif %}
+                · <time datetime="{{ entry.action_time|date:'c' }}">{{ entry.action_time|timesince }}</time>
+              </span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</section>

@@ -1,0 +1,14 @@
+{% load dsadmin %}
+<section class="ds-widget ds-metric d-card theme-bordered bg-base-100 {{ width_class }}" aria-label="{{ title }}">
+  <div class="d-stat place-items-start px-4 py-4">
+    {% if icon %}<div class="d-stat-figure {{ tone_class }}">{% ds_icon icon "size-8" %}</div>{% endif %}
+    <div class="d-stat-title theme-label-bold">{{ title }}</div>
+    <div class="d-stat-value ds-metric-value tabular-nums">{% if url %}<a href="{{ url }}" class="d-link d-link-hover">{{ value }}</a>{% else %}{{ value }}{% endif %}</div>
+    {% if delta is not None or description %}
+      <div class="d-stat-desc whitespace-normal">
+        {% if delta is not None %}<span class="{{ delta_tone_class }} font-semibold">{{ delta }}</span>{% endif %}
+        {% if description %}{{ description }}{% endif %}
+      </div>
+    {% endif %}
+  </div>
+</section>

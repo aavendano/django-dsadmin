@@ -1,0 +1,81 @@
+{% load i18n static tz dsadmin %}{% dsadmin_ui as ui %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}" data-site="{{ ui.site_name }}" data-color-mode="{{ ui.color_mode }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{% endblock %}</title>
+<meta name="color-scheme" content="{% if ui.dark_theme_url %}light dark{% else %}light{% endif %}">
+{% if ui.favicon %}<link rel="icon" href="{{ ui.favicon }}">{% endif %}
+{% for href in ui.font_css %}<link rel="stylesheet" href="{{ href }}"{% ds_nonce %}>{% endfor %}
+<link rel="stylesheet" id="ds-theme-light" href="{{ ui.theme_url }}"
+      media="{% if not ui.dark_theme_url or ui.color_mode == 'light' %}all{% elif ui.color_mode == 'dark' %}not all{% else %}(prefers-color-scheme: light){% endif %}"{% ds_nonce %}>
+{% if ui.dark_theme_url %}
+<link rel="stylesheet" id="ds-theme-dark" href="{{ ui.dark_theme_url }}"
+      media="{% if ui.color_mode == 'dark' %}all{% elif ui.color_mode == 'light' %}not all{% else %}(prefers-color-scheme: dark){% endif %}"{% ds_nonce %}>
+{% endif %}
+<script{% ds_nonce %}>
+/* dsadmin: apply stored colour mode and sidebar state before first paint. */
+(function(){try{var m=localStorage.getItem("dsadmin:color-mode"),l=document.getElementById("ds-theme-light"),d=document.getElementById("ds-theme-dark");if(m&&d){document.documentElement.dataset.colorMode=m;if(m==="light"){l.media="all";d.media="not all"}else if(m==="dark"){l.media="not all";d.media="all"}else{l.media="(prefers-color-scheme: light)";d.media="(prefers-color-scheme: dark)"}}if(localStorage.getItem("dsadmin:sidebar")==="collapsed")document.documentElement.dataset.sidebar="collapsed"}catch(e){}})();
+</script>
+{% for href in ui.extra_css %}<link rel="stylesheet" href="{{ href }}"{% ds_nonce %}>{% endfor %}
+{% block extrastyle %}{% endblock %}
+{% block extrahead %}{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+<script src="{% static 'dsadmin/js/dsadmin.js' %}" defer{% ds_nonce %}></script>
+{% for src in ui.extra_js %}<script type="module" src="{{ src }}"{% ds_nonce %}></script>{% endfor %}
+</head>
+<body class="dsadmin bg-base-200 text-base-content {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+      data-admin-utc-offset="{% now "Z" %}"
+      data-admin-server-timezone="{% get_current_timezone as time_zone %}{{ time_zone }}">
+{% include "dsadmin/layout/icons.html" %}
+<a href="#content-start" class="ds-skip-link d-btn d-btn-primary d-btn-sm">{% translate 'Skip to main content' %}</a>
+
+{% if not is_popup %}
+<div id="container" class="d-drawer lg:d-drawer-open">
+  <input id="ds-drawer" type="checkbox" class="d-drawer-toggle" aria-hidden="true" tabindex="-1">
+  <div class="d-drawer-content flex min-h-screen min-w-0 flex-col">
+    {% block header %}{% include "dsadmin/layout/navbar.html" %}{% endblock %}
+    <div class="hidden">{% block branding %}{% endblock %}{% block nav-global %}{% endblock %}{% block usertools %}{% endblock %}</div>
+{% endif %}
+
+    <main id="content-start" class="ds-main flex-1 {% if is_popup %}p-4 md:p-6{% else %}px-4 pb-10 pt-4 md:px-6 lg:px-8{% endif %}" tabindex="-1">
+      {% if not is_popup %}
+      {% block nav-breadcrumbs %}
+        <nav class="d-breadcrumbs ds-breadcrumbs mb-1 py-1 text-sm" aria-label="{% translate 'Breadcrumbs' %}">
+          {% block breadcrumbs %}
+            <ol class="breadcrumbs">
+              <li><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+              {% if title %}<li aria-current="page">{{ title }}</li>{% endif %}
+            </ol>
+          {% endblock %}
+        </nav>
+      {% endblock %}
+      {% endif %}
+
+      {% block messages %}{% include "dsadmin/layout/messages.html" %}{% endblock messages %}
+
+      <div id="content" class="ds-content {% block coltype %}colM{% endblock %}">
+        <header class="ds-page-header mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div class="min-w-0">
+            {% block pretitle %}{% endblock %}
+            {% block content_title %}{% if title %}<h1 class="ds-title text-2xl md:text-3xl">{{ title }}</h1>{% endif %}{% endblock %}
+            {% block content_subtitle %}{% if subtitle %}<p class="ds-subtitle mt-1 text-base ds-muted">{{ subtitle }}</p>{% endif %}{% endblock %}
+          </div>
+          {% block object-tools %}{% endblock %}
+        </header>
+        {% block content %}{{ content }}{% endblock %}
+        {% block sidebar %}{% endblock %}
+      </div>
+    </main>
+
+{% if not is_popup %}
+    <footer id="footer" class="px-4 pb-6 text-xs ds-muted md:px-6 lg:px-8">{% block footer %}{% endblock %}</footer>
+  </div>
+  {% block nav-sidebar %}{% include "dsadmin/layout/sidebar.html" %}{% endblock %}
+</div>
+{% endif %}
+
+{% block extrabody %}{% endblock extrabody %}
+</body>
+</html>

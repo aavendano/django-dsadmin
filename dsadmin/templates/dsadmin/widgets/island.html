@@ -1,0 +1,7 @@
+{% load dsadmin %}
+<section class="ds-widget d-card theme-bordered bg-base-100 {{ width_class }}" aria-label="{{ title }}">
+  <div class="d-card-body gap-3 p-4">
+    {% if title %}<h2 class="d-card-title text-base">{{ title }}</h2>{% endif %}
+    {% ds_island island_name island_src island_props %}
+  </div>
+</section>

@@ -1,0 +1,124 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list dsadmin %}
+
+{% block title %}{% if cl.formset and cl.formset.errors %}{% translate "Error:" %} {% endif %}{{ block.super }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {% if cl.formset %}<link rel="stylesheet" href="{% static "admin/css/widgets.css" %}"{% ds_nonce %}>{% endif %}
+  {% if cl.formset or action_form %}<script src="{% url 'admin:jsi18n' %}"{% ds_nonce %}></script>{% endif %}
+  {% ds_media media.css %}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{% ds_media media.js %}
+<script src="{% static 'admin/js/filters.js' %}" defer{% ds_nonce %}></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-list{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+  <li><a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a></li>
+  <li aria-current="page">{{ cl.opts.verbose_name_plural|capfirst }}</li>
+</ol>
+{% endblock %}
+{% endif %}
+
+{% block coltype %}{% endblock %}
+
+{% block object-tools %}
+<ul class="object-tools flex flex-wrap gap-2">
+  {% block object-tools-items %}
+    {% change_list_object_tools %}
+  {% endblock %}
+</ul>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% if cl.formset and cl.formset.errors %}
+    <div role="alert" class="errornote d-alert d-alert-error mb-4">
+      {% ds_icon "error" "size-5 shrink-0" %}
+      <span>{% blocktranslate count counter=cl.formset.total_error_count %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}</span>
+    </div>
+    {{ cl.formset.non_form_errors }}
+  {% endif %}
+
+  <div class="module{% if cl.has_filters %} filtered{% endif %} grid grid-cols-1 gap-4 {% if cl.has_filters %}xl:grid-cols-[minmax(0,1fr)_17rem]{% endif %}" id="changelist">
+    <div class="changelist-form-container min-w-0">
+      <div class="d-card theme-bordered bg-base-100">
+        <div class="ds-changelist-toolbar flex flex-col gap-3 border-b border-base-300 p-3 md:flex-row md:items-center md:justify-between">
+          {% block search %}{% search_form cl %}{% endblock %}
+          {% if cl.has_filters %}
+            <label for="ds-filters-toggle" class="d-btn d-btn-sm d-btn-ghost xl:hidden" role="button" tabindex="0" data-ds-label-button>
+              {% ds_icon "filter" "size-4" %}{% translate 'Filter' %}{% if cl.has_active_filters %}<span class="d-badge d-badge-primary d-badge-xs">{% translate 'on' %}</span>{% endif %}
+            </label>
+          {% endif %}
+        </div>
+        {% block date_hierarchy %}{% if cl.date_hierarchy %}{% date_hierarchy cl %}{% endif %}{% endblock %}
+
+        <form id="changelist-form" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>{% csrf_token %}
+          {% if cl.formset %}<div>{{ cl.formset.management_form }}</div>{% endif %}
+
+          {% block result_list %}
+            {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+            {% result_list cl %}
+            {% if not cl.result_count %}
+              {% url cl.opts|admin_urlname:'add' as add_url %}
+              <div class="p-4">
+              {% if cl.query or cl.has_active_filters %}
+                {% include "dsadmin/components/empty_state.html" with icon="search" title=_("No results") text=_("Nothing matches the current search or filters.") %}
+              {% elif has_add_permission %}
+                {% blocktranslate with name=cl.opts.verbose_name asvar add_label %}Add {{ name }}{% endblocktranslate %}
+                {% include "dsadmin/components/empty_state.html" with icon="inbox" title=_("Nothing here yet") action_url=add_url action_label=add_label %}
+              {% else %}
+                {% include "dsadmin/components/empty_state.html" with icon="inbox" title=_("Nothing here yet") %}
+              {% endif %}
+              </div>
+            {% endif %}
+            {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+          {% endblock %}
+
+          {% block pagination %}
+            <div class="changelist-footer flex flex-wrap items-center justify-between gap-3 border-t border-base-300 p-3">
+              {% pagination cl %}
+              {% if cl.formset and cl.result_count %}<input type="submit" name="_save" class="default d-btn d-btn-primary d-btn-sm" value="{% translate 'Save' %}">{% endif %}
+            </div>
+          {% endblock %}
+        </form>
+        {% if cl.model_admin.list_object_actions %}
+          <form id="ds-row-action-form" method="post" class="hidden">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"></form>
+        {% endif %}
+      </div>
+    </div>
+
+    {% block filters %}
+      {% if cl.has_filters %}
+        <input type="checkbox" id="ds-filters-toggle" class="peer hidden" aria-hidden="true">
+        <search id="changelist-filter" aria-labelledby="changelist-filter-header"
+                class="ds-filters hidden peer-checked:block xl:block">
+          <div class="d-card theme-bordered bg-base-100">
+            <div class="d-card-body gap-2 p-4">
+              <div class="flex items-center justify-between gap-2">
+                <h2 id="changelist-filter-header" class="d-card-title text-base">{% ds_icon "filter" "size-4" %}{% translate 'Filter' %}</h2>
+                {% if cl.has_active_filters %}<a href="{{ cl.clear_all_filters_qs }}" class="d-btn d-btn-ghost d-btn-xs">{% ds_icon "x" "size-3.5" %}{% translate "Clear all filters" %}</a>{% endif %}
+              </div>
+              {% if cl.is_facets_optional %}
+                <div id="changelist-filter-extra-actions">
+                  {% if cl.add_facets %}<a href="{{ cl.remove_facet_link }}" class="hidelink d-link d-link-hover text-sm">{% translate "Hide counts" %}</a>
+                  {% else %}<a href="{{ cl.add_facet_link }}" class="viewlink d-link d-link-hover text-sm">{% translate "Show counts" %}</a>{% endif %}
+                </div>
+              {% endif %}
+              {% for spec in cl.filter_specs %}{% admin_list_filter cl spec %}{% endfor %}
+            </div>
+          </div>
+        </search>
+      {% endif %}
+    {% endblock %}
+  </div>
+</div>
+{% endblock %}

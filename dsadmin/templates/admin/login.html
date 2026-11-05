@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static dsadmin %}
+
+{% block title %}{% if form.errors %}{% translate "Error:" %} {% endif %}{{ block.super }}{% endblock %}
+{% block extrastyle %}{{ block.super }}{% ds_media form.media %}{% endblock %}
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+{% block header %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+{% dsadmin_ui as ui %}
+<div id="content-main" class="mx-auto flex min-h-[80vh] w-full max-w-sm flex-col justify-center">
+  <div class="d-card theme-bordered theme-elevated bg-base-100">
+    <div class="d-card-body gap-4">
+      <div class="flex items-center gap-3">
+        {% if ui.logo %}<img src="{{ ui.logo }}" alt="" class="h-9 w-auto">{% else %}<span class="grid size-9 place-items-center rounded-box bg-primary text-primary-content font-bold" aria-hidden="true">{{ ui.header|slice:":1"|upper }}</span>{% endif %}
+        <div>
+          <h1 class="text-xl font-semibold leading-tight">{{ ui.header }}</h1>
+          <p class="text-sm ds-muted">{% translate 'Log in' %}</p>
+        </div>
+      </div>
+
+      {% if form.errors and not form.non_field_errors %}
+      <div role="alert" class="errornote d-alert d-alert-error text-sm">{% ds_icon "error" "size-5 shrink-0" %}<span>{% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}</span></div>
+      {% endif %}
+      {% for error in form.non_field_errors %}
+      <div role="alert" class="errornote d-alert d-alert-error text-sm">{% ds_icon "error" "size-5 shrink-0" %}<span>{{ error }}</span></div>
+      {% endfor %}
+      {% if user.is_authenticated %}
+      <div role="alert" class="errornote d-alert d-alert-warning text-sm">{% ds_icon "alert" "size-5 shrink-0" %}<span>{% blocktranslate trimmed %}You are authenticated as {{ username }}, but are not authorized to access this page. Would you like to login to a different account?{% endblocktranslate %}</span></div>
+      {% endif %}
+
+      <form action="{{ app_path }}" method="post" id="login-form" class="flex flex-col gap-3">{% csrf_token %}
+        <div class="form-row flex flex-col gap-1">
+          {{ form.username.label_tag }}
+          {% ds_field form.username %}
+          {{ form.username.errors }}
+        </div>
+        <div class="form-row flex flex-col gap-1">
+          {{ form.password.label_tag }}
+          {% ds_field form.password %}
+          {{ form.password.errors }}
+          <input type="hidden" name="next" value="{{ next }}">
+        </div>
+        {% url 'admin_password_reset' as password_reset_url %}
+        {% if password_reset_url %}
+          <div class="password-reset-link text-sm"><a class="d-link" href="{{ password_reset_url }}">{% translate 'Forgotten your login credentials?' %}</a></div>
+        {% endif %}
+        <div class="submit-row pt-1">
+          <input type="submit" value="{% translate 'Log in' %}" class="d-btn d-btn-primary theme-bordered w-full">
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

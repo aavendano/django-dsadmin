@@ -1,0 +1,36 @@
+{% load i18n dsadmin %}{% dsadmin_ui as ui %}
+<header id="header" class="ds-navbar d-navbar sticky top-0 z-30 min-h-14 gap-2 border-b border-base-300 bg-base-100/95 px-2 backdrop-blur md:px-4">
+  <div class="flex-none lg:hidden">
+    <label for="ds-drawer" class="d-btn d-btn-square d-btn-ghost" role="button" tabindex="0"
+           data-ds-drawer-toggle aria-controls="ds-sidebar" aria-label="{% translate 'Open navigation' %}">
+      {% ds_icon "menu" %}
+    </label>
+  </div>
+  <div class="flex min-w-0 flex-1 items-center gap-2">
+    <a href="{{ ui.index_url }}" class="truncate font-semibold lg:hidden ds-brand-text">{{ ui.header }}</a>
+    {% if ui.search_url %}
+      <form action="{{ ui.search_url }}" method="get" role="search" class="hidden w-full max-w-md md:block">
+        <label class="d-input d-input-sm w-full">
+          {% ds_icon "search" "size-4 opacity-60" %}
+          <span class="sr-only">{% translate 'Search the admin' %}</span>
+          <input type="search" name="q" value="{{ query|default:'' }}" class="grow"
+                 placeholder="{% translate 'Search…' %}" autocomplete="off" data-ds-search-input>
+          <kbd class="d-kbd d-kbd-sm hidden lg:inline-flex" aria-hidden="true">/</kbd>
+        </label>
+      </form>
+    {% endif %}
+  </div>
+  <div class="flex flex-none items-center gap-1">
+    {% if ui.search_url %}
+      <a href="{{ ui.search_url }}" class="d-btn d-btn-square d-btn-ghost md:hidden" aria-label="{% translate 'Search' %}">{% ds_icon "search" %}</a>
+    {% endif %}
+    {% if ui.environment %}
+      <span class="d-badge {{ ui.environment.class }} theme-label-bold hidden sm:inline-flex">{{ ui.environment.label }}</span>
+    {% endif %}
+    {% if site_url %}
+      <a href="{{ site_url }}" class="d-btn d-btn-ghost d-btn-sm hidden sm:inline-flex">{% ds_icon "external" "size-4" %}<span>{% translate 'View site' %}</span></a>
+    {% endif %}
+    {% if ui.show_theme_toggle %}{% include "dsadmin/layout/theme_toggle.html" %}{% endif %}
+    {% if has_permission %}{% include "dsadmin/layout/user_menu.html" %}{% endif %}
+  </div>
+</header>

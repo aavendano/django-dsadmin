@@ -1,0 +1,25 @@
+{% load i18n static dsadmin %}
+{% if cl.search_fields %}
+<div id="toolbar" class="w-full md:max-w-lg">
+<h2 id="changelist-search-form" class="sr-only">{% blocktranslate with name=cl.opts.verbose_name_plural %}Search {{ name }}{% endblocktranslate %}</h2>
+<form id="changelist-search" method="get" role="search" aria-labelledby="changelist-search-form" class="flex flex-col gap-1">
+  <div class="d-join w-full">
+    <label class="d-input d-input-sm d-join-item w-full" for="searchbar">
+      {% ds_icon "search" "size-4 opacity-60" %}
+      <span class="sr-only">{% translate 'Search' %}</span>
+      <input type="search" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" class="grow"
+             placeholder="{% blocktranslate with name=cl.opts.verbose_name_plural %}Search {{ name }}{% endblocktranslate %}"{% if cl.search_help_text %} aria-describedby="searchbar_helptext"{% endif %}>
+    </label>
+    <input type="submit" value="{% translate 'Search' %}" class="d-btn d-btn-sm d-join-item">
+  </div>
+  {% if show_result_count %}
+    <span class="small quiet text-xs ds-muted">{% blocktranslate count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktranslate %} (<a class="d-link" href="?{% if cl.is_popup %}{{ is_popup_var }}=1{% if cl.add_facets %}&{% endif %}{% endif %}{% if cl.add_facets %}{{ is_facets_var }}{% endif %}">{% if cl.show_full_result_count %}{% blocktranslate with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktranslate %}{% else %}{% translate "Show all" %}{% endif %}</a>)</span>
+  {% endif %}
+  {% for pair in cl.params.items %}
+    {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">{% endif %}
+  {% endfor %}
+  {% if cl.search_help_text %}<div class="help text-xs ds-muted" id="searchbar_helptext">{{ cl.search_help_text }}</div>{% endif %}
+</form>
+</div>
+{% else %}<div></div>
+{% endif %}

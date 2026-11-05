@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static dsadmin %}
+
+{% block coltype %}colMS{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content_title %}{% dsadmin_ui as ui %}<h1 class="ds-title text-2xl md:text-3xl">{% if title %}{{ title }}{% else %}{{ ui.header }}{% endif %}</h1>{% endblock %}
+
+{% block content %}
+<div id="content-main" class="ds-dashboard grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+  {% if dashboard_html %}
+    {{ dashboard_html }}
+  {% else %}
+    {# Plain AdminSite (not DSAdminSite): classic app list as cards. #}
+    <div class="md:col-span-2 xl:col-span-3">{% include "dsadmin/widgets/_app_cards.html" with app_list=app_list %}</div>
+    <div>{% include "dsadmin/widgets/_recent_actions_card.html" %}</div>
+  {% endif %}
+</div>
+{% endblock %}

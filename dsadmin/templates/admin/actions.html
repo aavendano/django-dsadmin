@@ -1,0 +1,25 @@
+{% load i18n dsadmin %}
+<div class="actions ds-actions flex flex-wrap items-center gap-2 border-b border-base-300 bg-base-200/50 px-3 py-2">
+  {% block actions %}
+    {% block actions-form %}
+    {% for field in action_form %}
+      {% if field.is_hidden %}{{ field }}{% elif field.label %}<label class="flex items-center gap-2 text-sm"><span class="sr-only md:not-sr-only">{{ field.label }}</span> {% ds_field field %}</label>{% else %}{% ds_field field %}{% endif %}
+    {% endfor %}
+    {% endblock %}
+    {% block actions-submit %}
+    <button type="submit" class="button d-btn d-btn-sm" name="index" value="{{ action_index|default:0 }}">{% ds_icon "play" "size-3.5" %}{% translate "Run" %}</button>
+    {% endblock %}
+    {% block actions-counter %}
+    {% if actions_selection_counter %}
+        <span class="action-counter text-sm ds-muted" data-actions-icnt="{{ cl.result_list|length }}" aria-live="polite" aria-atomic="true">{{ selection_note }}</span>
+        {% if cl.result_count != cl.result_list|length %}
+        <span class="all hidden text-sm">{{ selection_note_all }}</span>
+        <span class="question hidden text-sm">
+            <a role="button" href="#" class="d-link">{% blocktranslate with cl.result_count as total_count %}Select all {{ total_count }} {{ module_name }}{% endblocktranslate %}</a>
+        </span>
+        <span class="clear hidden text-sm"><a role="button" href="#" class="d-link">{% translate "Clear selection" %}</a></span>
+        {% endif %}
+    {% endif %}
+    {% endblock %}
+  {% endblock %}
+</div>

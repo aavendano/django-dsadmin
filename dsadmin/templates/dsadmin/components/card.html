@@ -1,0 +1,7 @@
+{# include with: title, body (safe html) — or use {% include %} and the .d-card markup directly #}
+<section class="d-card theme-bordered bg-base-100"{% if title %} aria-label="{{ title }}"{% endif %}>
+  <div class="d-card-body gap-3 p-4">
+    {% if title %}<h2 class="d-card-title text-base">{{ title }}</h2>{% endif %}
+    {{ body }}
+  </div>
+</section>

@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n admin_urls static dsadmin %}
+
+{% block extrahead %}{{ block.super }}{% ds_media media %}<script src="{% static 'admin/js/cancel.js' %}" async{% ds_nonce %}></script>{% endblock %}
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation delete-selected-confirmation{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+  <li><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+  <li><a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a></li>
+  <li aria-current="page">{% translate 'Delete multiple objects' %}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div class="d-card theme-bordered bg-base-100 max-w-3xl">
+  <div class="d-card-body gap-4">
+{% if perms_lacking %}
+    <div role="alert" class="d-alert d-alert-error">{% ds_icon "shield" "size-5 shrink-0" %}<span>{% blocktranslate %}Deleting the selected {{ objects_name }} would result in deleting related objects, but your account doesn't have permission to delete the following types of objects:{% endblocktranslate %}</span></div>
+    <ul class="ds-tree list-disc ps-6">{% ds_object_list perms_lacking %}</ul>
+{% elif protected %}
+    <div role="alert" class="d-alert d-alert-warning">{% ds_icon "alert" "size-5 shrink-0" %}<span>{% blocktranslate %}Deleting the selected {{ objects_name }} would require deleting the following protected related objects:{% endblocktranslate %}</span></div>
+    <ul class="ds-tree list-disc ps-6">{% ds_object_list protected %}</ul>
+{% else %}
+    <div role="alert" class="d-alert d-alert-warning">{% ds_icon "alert" "size-5 shrink-0" %}<span>{% blocktranslate %}Are you sure you want to delete the selected {{ objects_name }}? All of the following objects and their related items will be deleted:{% endblocktranslate %}</span></div>
+    {% include "admin/includes/object_delete_summary.html" %}
+    <h2 class="text-lg font-semibold">{% translate "Objects" %}</h2>
+    {% for deletable_object in deletable_objects %}<ul class="ds-tree list-disc ps-6">{% ds_object_list deletable_object %}</ul>{% endfor %}
+    <form method="post" class="flex flex-wrap gap-2 pt-2">{% csrf_token %}
+      {% for obj in queryset %}<input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}">{% endfor %}
+      <input type="hidden" name="action" value="delete_selected">
+      <input type="hidden" name="post" value="yes">
+      <input type="submit" value="{% translate 'Yes, I’m sure' %}" class="d-btn d-btn-error">
+      <a role="button" href="#" class="button cancel-link d-btn d-btn-ghost">{% translate "No, take me back" %}</a>
+    </form>
+{% endif %}
+  </div>
+</div>
+{% endblock %}

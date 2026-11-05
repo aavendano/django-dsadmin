@@ -1,0 +1,38 @@
+{% load i18n static %}
+<div class="related-widget-wrapper ds-related-widget flex flex-wrap items-center gap-1" {% if not model_has_limit_choices_to %}data-model-ref="{{ model_name }}"{% endif %}>
+    {{ rendered_widget }}
+    {% block links %}
+        {% spaceless %}
+        {% if not is_hidden %}
+        {% if can_change_related %}
+        <a class="related-widget-wrapper-link change-related d-btn d-btn-ghost d-btn-sm d-btn-square" id="change_id_{{ name }}"
+            data-href-template="{{ change_related_template_url }}?{{ url_params }}" data-popup="yes"
+            title="{% blocktranslate %}Change selected {{ model }}{% endblocktranslate %}">
+            <svg class="ds-icon size-4" role="img" aria-label="{% blocktranslate %}Change selected {{ model }}{% endblocktranslate %}"><use href="#ds-i-edit"></use></svg>
+        </a>
+        {% endif %}
+        {% if can_add_related %}
+        <a class="related-widget-wrapper-link add-related d-btn d-btn-ghost d-btn-sm d-btn-square" id="add_id_{{ name }}" data-popup="yes"
+            href="{{ add_related_url }}?{{ url_params }}"
+            title="{% blocktranslate %}Add another {{ model }}{% endblocktranslate %}">
+            <svg class="ds-icon size-4" role="img" aria-label="{% blocktranslate %}Add another {{ model }}{% endblocktranslate %}"><use href="#ds-i-plus"></use></svg>
+        </a>
+        {% endif %}
+        {% if can_delete_related %}
+        <a class="related-widget-wrapper-link delete-related d-btn d-btn-ghost d-btn-sm d-btn-square" id="delete_id_{{ name }}"
+            data-href-template="{{ delete_related_template_url }}?{{ url_params }}" data-popup="yes"
+            title="{% blocktranslate %}Delete selected {{ model }}{% endblocktranslate %}">
+            <svg class="ds-icon size-4" role="img" aria-label="{% blocktranslate %}Delete selected {{ model }}{% endblocktranslate %}"><use href="#ds-i-trash"></use></svg>
+        </a>
+        {% endif %}
+        {% if can_view_related %}
+          <a class="related-widget-wrapper-link view-related d-btn d-btn-ghost d-btn-sm d-btn-square" id="view_id_{{ name }}"
+             data-href-template="{{ change_related_template_url }}?{{ view_related_url_params }}"
+             title="{% blocktranslate %}View selected {{ model }}{% endblocktranslate %}">
+            <svg class="ds-icon size-4" role="img" aria-label="{% blocktranslate %}View selected {{ model }}{% endblocktranslate %}"><use href="#ds-i-eye"></use></svg>
+          </a>
+        {% endif %}
+        {% endif %}
+        {% endspaceless %}
+    {% endblock %}
+</div>

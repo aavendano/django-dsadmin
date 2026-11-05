@@ -1,0 +1,8 @@
+{% load i18n admin_urls dsadmin %}
+{% block object-tools-items %}
+<li>
+  {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+  <a href="{% add_preserved_filters history_url %}" class="historylink d-btn d-btn-sm d-btn-ghost">{% ds_icon "history" "size-4" %}{% translate "History" %}</a>
+</li>
+{% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink d-btn d-btn-sm d-btn-ghost">{% ds_icon "external" "size-4" %}{% translate "View on site" %}</a></li>{% endif %}
+{% endblock %}

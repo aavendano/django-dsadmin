@@ -1,0 +1,12 @@
+{% extends "dsadmin/page.html" %}
+{% load dsadmin %}
+{% block page_content %}
+<div class="flex flex-col gap-4">
+  {% include "dsadmin/components/alert.html" with tone="info" title="Island" text="The board below is an ES module (catalog/islands/stock-board.js) mounted with the ds_island template tag. It could equally be a React or Puck bundle; the admin layout, auth and CSRF stay Django's." %}
+  <section class="d-card theme-bordered bg-base-100" aria-label="Stock board">
+    <div class="d-card-body p-4">
+      {% ds_island "stock-board" src="catalog/islands/stock-board.js" props=island_props %}
+    </div>
+  </section>
+</div>
+{% endblock %}

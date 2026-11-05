@@ -1,0 +1,13 @@
+{% load i18n dsadmin %}
+<details class="d-dropdown d-dropdown-end" data-ds-color-mode-menu>
+  <summary class="d-btn d-btn-square d-btn-ghost" aria-label="{% translate 'Colour mode' %}" title="{% translate 'Colour mode' %}">
+    <span class="ds-mode-icon ds-mode-icon-auto">{% ds_icon "monitor" %}</span>
+    <span class="ds-mode-icon ds-mode-icon-light">{% ds_icon "sun" %}</span>
+    <span class="ds-mode-icon ds-mode-icon-dark">{% ds_icon "moon" %}</span>
+  </summary>
+  <ul class="d-menu d-dropdown-content z-40 mt-2 w-44 rounded-box border border-base-300 bg-base-100 p-1 shadow-lg" role="menu">
+    <li role="none"><button type="button" role="menuitemradio" data-ds-color-mode="auto">{% ds_icon "monitor" "size-4" %}{% translate 'System' %}</button></li>
+    <li role="none"><button type="button" role="menuitemradio" data-ds-color-mode="light">{% ds_icon "sun" "size-4" %}{% translate 'Light' %}</button></li>
+    <li role="none"><button type="button" role="menuitemradio" data-ds-color-mode="dark">{% ds_icon "moon" "size-4" %}{% translate 'Dark' %}</button></li>
+  </ul>
+</details>

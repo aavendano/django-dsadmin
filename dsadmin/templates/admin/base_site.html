@@ -1,0 +1,5 @@
+{% extends "admin/base.html" %}
+{% load dsadmin %}
+{% block title %}{% dsadmin_ui as ui %}{% if subtitle %}{{ subtitle }} | {% endif %}{% if title %}{{ title }} | {% endif %}{{ ui.title }}{% endblock %}
+
+{% block branding %}{% dsadmin_ui as ui %}<div id="site-name"><a href="{{ ui.index_url }}">{{ ui.header }}</a></div>{% endblock %}

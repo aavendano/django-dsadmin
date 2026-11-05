@@ -1,0 +1,8 @@
+{% load dsadmin %}
+{# include with: icon, title, text, action_url, action_label, compact #}
+<div class="ds-empty flex flex-col items-center justify-center gap-2 text-center {% if compact %}py-4{% else %}rounded-box border border-dashed border-base-300 bg-base-100 px-6 py-12{% endif %}" role="status">
+  <span class="grid place-items-center rounded-full bg-base-200 {% if compact %}size-10{% else %}size-14{% endif %} ds-muted">{% ds_icon icon|default:"inbox" "size-6" %}</span>
+  {% if title %}<p class="font-semibold">{{ title }}</p>{% endif %}
+  {% if text %}<p class="max-w-md text-sm ds-muted">{{ text }}</p>{% endif %}
+  {% if action_url %}<a href="{{ action_url }}" class="d-btn d-btn-primary d-btn-sm mt-2">{% ds_icon "plus" "size-4" %}{{ action_label }}</a>{% endif %}
+</div>

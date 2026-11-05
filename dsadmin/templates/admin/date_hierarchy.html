@@ -1,0 +1,16 @@
+{% load i18n dsadmin %}
+{% if show %}
+<nav class="toplinks flex flex-wrap items-center gap-1 border-b border-base-300 px-3 py-2 text-sm" aria-labelledby="date-hierarchy-label">
+<span id="date-hierarchy-label" class="me-1 inline-flex items-center gap-1 ds-muted">{% ds_icon "calendar" "size-4" %}{% blocktranslate %}Filter by {{ field_name }}{% endblocktranslate %}</span>
+{% block date-hierarchy-toplinks %}
+{% block date-hierarchy-back %}
+{% if back %}<a href="{{ back.link }}" class="date-back d-btn d-btn-ghost d-btn-xs">{% ds_icon "chevron-left" "size-3.5" %}{{ back.title }}</a>{% endif %}
+{% endblock %}
+{% block date-hierarchy-choices %}
+{% for choice in choices %}
+{% if choice.link %}<a href="{{ choice.link }}" class="d-btn d-btn-ghost d-btn-xs">{{ choice.title }}</a>{% else %}<span class="d-btn d-btn-xs d-btn-active">{{ choice.title }}</span>{% endif %}
+{% endfor %}
+{% endblock %}
+{% endblock %}
+</nav>
+{% endif %}
